@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 
 public class BatchSample {
 
-    private static String awesomeUser = "awesome_user3";
+    private static String awesomeUser = "awesome_user18";
 
     public static void main(String[] args) throws IOException {
 
@@ -33,6 +33,11 @@ public class BatchSample {
 
         final CreateAccessKeyResult iamResponse = IamManager.createIam(awesomeUser);
         System.out.println(iamResponse);
+
+        final Policy policy = IamManager.createPolicy("policy1", IamManager.ALLOW_EVERYTHING_POLICY_DOCUMENT);
+
+        final Role role = IamManager.createRole("role3", IamManager.ALLOW_EVERYTHING_POLICY_DOCUMENT);
+        System.out.println(role);
 
         AWSBatch client = AWSBatchClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:5000", Regions.US_WEST_2.getName()))
@@ -47,9 +52,10 @@ public class BatchSample {
                                 .withInstanceTypes( "t2.micro", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", "c4.8xlarge")
                                 .withSubnets("subnet-a30d20e8", "subnet-8b4f5dd1", "subnet-5ab63c71","subnet-7d838304").withSecurityGroupIds("sg-cf5093b2")
                                 .withEc2KeyPair("MyKeyPair").withInstanceRole("ecsInstanceRole"))
-                .withServiceRole("");
+                .withServiceRole(role.getArn());
 
         CreateComputeEnvironmentResult response = client.createComputeEnvironment(request);
+
 
         //Submit to delete the user
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -60,10 +66,17 @@ public class BatchSample {
 
         iam.listUsers();
 
-        IamManager.deleteAccessKeyByUser(awesomeUser, iamResponse.getAccessKey().getAccessKeyId());
-        IamManager.deleteUser(awesomeUser);
+        /*IamManager.deleteAccessKeyByUser(awesomeUser, iamResponse.getAccessKey().getAccessKeyId());
+        IamManager.deleteUser(awesomeUser);*/
 
-      //  System.out.println(response.getComputeEnvironmentArn());
+      //  System.out.println(response.getComputeEnvironmentArn())
+
+
+//        TODO: job for batch  => https://stackoverflow.com/questions/44689486/how-to-use-aws-batch-in-java-classlambda-function-to-submit-batch-job
+//        SubmitJobRequest request = new SubmitJobRequest().withJobName("some-name")
+//                .withJobQueue("job-queue-name")
+//                .withJobDefinition("job-definition-name-with-revision-number:1");
+//        SubmitJobResult response = client.submitJob(request); }
     }
 
 
